@@ -1,0 +1,114 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-parent</artifactId>
+        <version>49</version>
+    </parent>
+    <groupId>org.wildfly</groupId>
+    <artifactId>graphrag</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    
+    <packaging>war</packaging>
+    <name>Neo4J GraphRag Example</name>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jakartaee>10.0.0</jakartaee>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <version.wildfly.maven.plugin>5.1.2.Final</version.wildfly.maven.plugin>
+        <version.wildfly.server>36.0.0.Final</version.wildfly.server>
+        <version.dev.langchain4j>1.0.0-beta3</version.dev.langchain4j>
+        <version.io.smallrye.llm>0.0.4</version.io.smallrye.llm>
+        <version.compiler.plugin>3.14.0</version.compiler.plugin>
+        <version.war.plugin>3.4.0</version.war.plugin>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>${jakartaee}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.smallrye.llm</groupId>
+            <artifactId>smallrye-llm-langchain4j-core</artifactId>
+            <version>${version.io.smallrye.llm}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.smallrye.llm</groupId>
+            <artifactId>smallrye-llm-langchain4j-portable-extension</artifactId>
+            <version>${version.io.smallrye.llm}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+            <version>${version.dev.langchain4j}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-core</artifactId>
+            <version>${version.dev.langchain4j}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <!--Configuration of the maven-compiler-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.compiler.plugin}</version>
+            </plugin>
+
+            <!--Build configuration for the WAR plugin: -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${version.war.plugin}</version>
+                <configuration>
+                    <!-- Jakarta EE doesn't require web.xml, Maven needs to catch up! -->
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>${version.wildfly.maven.plugin}</version>
+                <configuration>
+                    <discoverProvisioningInfo>
+                        <spaces>
+                            <space>incubating</space>
+                        </spaces>
+                        <version>${version.wildfly.server}</version>
+                        <suggest>true</suggest>
+                    </discoverProvisioningInfo>
+                    <name>ROOT.war</name>
+                    <packagingScripts>
+                        <packaging-script>
+                            <scripts>
+                                <script>./src/scripts/configure_neo4j.cli</script>
+                            </scripts>
+                        </packaging-script>
+                    </packagingScripts>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
